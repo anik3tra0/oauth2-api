@@ -1,0 +1,8 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: oauth2_api_dev
+  host: localhost
+  pool: 5
+  username: <%= ENV["USERNAME"] %>
+  password: <%= ENV["PASSWORD"] %>
