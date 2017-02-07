@@ -1,14 +1,28 @@
 Doorkeeper.configure do
+  # Refresh tokens
+  # use_refresh_token
   # Change the ORM that doorkeeper will use (needs plugins)
   orm :active_record
-
   # This block will be called to check whether the resource owner is authenticated or not.
   resource_owner_authenticator do
-    fail "Please configure doorkeeper resource_owner_authenticator block located in #{__FILE__}"
-    # Put your resource owner authentication logic here.
-    # Example implementation:
-    #   User.find_by_id(session[:user_id]) || redirect_to(new_user_session_url)
+    warden.authenticate!(scope: :user)
   end
+
+  resource_owner_from_credentials do |routes|
+    u = User.find_for_database_authentication(email: params[:email])
+    u if u && u.valid_password?(params[:password])
+  end
+
+  access_token_expires_in 24.hours
+
+  default_scopes  :api
+  optional_scopes :write
+
+  skip_authorization do |resource_owner, client|
+    true
+  end
+
+  grant_flows %w(password)
 
   # If you want to restrict access to the web interface for adding oauth authorized applications, you need to declare the block below.
   # admin_authenticator do
